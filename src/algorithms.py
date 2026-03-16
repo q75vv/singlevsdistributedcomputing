@@ -36,6 +36,29 @@ def prime_sieve(limit: int) -> list[int]:
             #Zero out every multiple of i starting at i*i (all smaller multiples were already handled by earlier primes)
             sieve[i * i :: i] = bytearray(len(sieve[i * i :: i]))
 
-        #Collect the indices that are still marked as prime
-        return [i for i, v in enumerate(sieve) if v]
+    #Collect the indices that are still marked as prime
+    return [i for i, v in enumerate(sieve) if v]
+    
+def primes_chunk(args: tuple) -> list[int]:
+    '''
+    Finds all primes within subrange [lo, hi] using trial division.
+
+    This is a worker function to be used by multiprocessing and distributed runners. It uses a trial division approach instead of
+    a sieve because each worker only recieves a slice of the number line, and building a fill sieve for every worker would be wasteful and 
+    defeat the purpose of splitting the work.
+
+    We pass in a tuple because multiprocessing.Pool.map and Ray can only pass a single argument to worker functions.
+    '''
+
+    lo, hi = args
+    results = []
+
+    for n in range(max(lo, 2), hi + 1):
+        if n < 2:
+            continue
+        #Trial division: n is prime if no integer in [2, sqrt(n)] divides it
+        if all(n % d != 0 for d in range(2, int(math.isqrt(n)) + 1)):
+            results.append(n)
+
+    return results
     
