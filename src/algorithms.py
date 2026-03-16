@@ -5,9 +5,10 @@ Matrix Multiplication via NumPy
 '''
 
 import math
-import numpy
+import numpy as np
 
 #Prime number genreation
+
 def prime_sieve(limit: int) -> list[int]:
     """
     Return all prime numbers up to limit (inclusive) using the Sieve of Eratosthenes
@@ -61,4 +62,22 @@ def primes_chunk(args: tuple) -> list[int]:
             results.append(n)
 
     return results
+
+
+#Matrix multiplication
+def matrix_multiplication(size: int) -> np.ndarray:
+    '''
+    Multiply two randomly generated (size x size) float64 matricies and return the result
+
+    Use a fixed random seed to make sure every runner (single, multiprocess, distributed) operates on the same data
+    '''
+    #Random number generator with specified seed
+    rng = np.random.default_rng(seed=2026)
+
+    #Create random size x size matricies
+    A = rng.random((size, size))
+    B = rng.random((size, size))
+
+    
+    return A @ B #Shorthand for np.matmul(A, B). Uses Basic Linear Algebra Subprograms under the hood.
     
