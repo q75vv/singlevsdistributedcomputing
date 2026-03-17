@@ -6,10 +6,11 @@ Matrix Multiplication via NumPy
 
 import math
 import numpy as np
+from typing import Tuple, List
 
 #Prime number genreation
 
-def prime_sieve(limit: int) -> list[int]:
+def prime_sieve(limit: int) -> List[int]:
     """
     Return all prime numbers up to limit (inclusive) using the Sieve of Eratosthenes
     - https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes#Algorithm_and_variants
@@ -40,7 +41,7 @@ def prime_sieve(limit: int) -> list[int]:
     #Collect the indices that are still marked as prime
     return [i for i, v in enumerate(sieve) if v]
     
-def primes_chunk(args: tuple) -> list[int]:
+def primes_chunk(args: Tuple[int, int]) -> List[int]:
     '''
     Finds all primes within subrange [lo, hi] using trial division.
 
@@ -79,5 +80,25 @@ def matrix_multiplication(size: int) -> np.ndarray:
     B = rng.random((size, size))
 
     
-    return A @ B #Shorthand for np.matmul(A, B). Uses Basic Linear Algebra Subprograms under the hood.
+    return A @ B #Shorthand for np.matmul(A, B). Uses Basic Linear Algebra Subprograms under the hood.\
+
+def matrix_multiplication_chunk(args: Tuple[List[int], int, int]) -> np.ndarray:
+    '''
+    Multiply a horizontal slice of matrix A by the full matrix B
+
+    Worker function for parallel and distributed matrix multiplication. Each worker is given a subset of A's rows and computes only those rows of the final product.
+    The results are later stacked in order by the coordinator to make the full result matrix.
+    '''
+
+    row_indicies, size, seed = args
+
+    rng = np.random.default_rng(seed=seed)
+    A_full = rng.random((size, size))
+    B  = rng.random((size, size)) #Use the same rng sequence.
+
+    #Slice out only this worker's rows before multiplying
+    A_chunk = A_full[row_indicies]
+
+    return A_chunk @ B
+    
     
