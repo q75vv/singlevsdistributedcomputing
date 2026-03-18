@@ -80,3 +80,29 @@ class ResourceMonitor:
                 break
             time.sleep(self.POLL_INTERVAL)
 
+def run_benchmark(label: str, algorithm: str, size: int, num_workers: int, fn: Callable[[], None]) -> BenchmarkResult:
+    '''
+    Execute fn() once, measure wall clock time, peak mem, and avg cpu util
+    '''
+
+    #Start resource monitoring before launching a task
+    monitor = ResourceMonitor()
+    monitor.start()
+
+    t0 = time.perf_counter()
+    fn() #Excecute workload
+    elapsed = time.perf_counter - t0
+
+    #Stop monitoring and collect summary stats
+    avg_cpu, peak_mem = monitor.stop()
+
+    return BenchmarkResult(
+        label=label,
+        algorithm=algorithm,
+        size=size,
+        num_workers=num_workers,
+        elapsed_sec=round(elapsed, 4),
+        peak_memory_mb=round(peak_mem, 2),
+        avg_cpu_pct=round(avg_cpu, 2),
+    )
+
