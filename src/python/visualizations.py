@@ -124,4 +124,30 @@ def plot_speedup(df: pd.DataFrame, algorithm: str, size: int) -> None:
     plt.savefig(path, dpi=150)
     plt.close()
     print(f'Saved: {path}')
+
+#MORE PLOTTING FUNCTIONS TO COME
+
+def generate_all(results: List[BenchmarkResult]) -> None:
+    '''
+    Generate every chart and summary csv for the full result set
+    '''
+
+    df = result_to_df(results)
+
+    #Save raw data first
+    if not os.path.exists(RESULTS_DIR):
+        os.makedirs(RESULTS_DIR)
+    csv_path = os.path.join(RESULTS_DIR, 'benchmark_results.csv')
+    print(f'Saved: {csv_path}\n')
+
+    #For each alg/size combo, create the 4 charts
+    for combo in df[["algorithm", "size"]].drop_duplicates().values.tolist():
+        algo = combo[0]
+        size = combo[1]
+
+        print(f"[{algo} | size={size}]")
+        plot_exec_time(df, algo, size)
+        plot_speedup(df, algo, size)
+        #plot_memory(df, algo, size)
+        #plot_cpu(df, algo, size)
     

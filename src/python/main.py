@@ -98,7 +98,7 @@ def _result_line(r: BenchmarkResult) -> None:
     '''Print a single result on one line'''
     print(f"  [{r.label:<22}]  {r.elapsed_sec:>7.3f}s mem={r.peak_memory_mb:>7.1f}MB cpu={r.avg_cpu_pct:>5.1f}%")
 
-def run(sizes: Dict[str, List[int]], use_distributed: bool, fixed_workers: Optional[int]=None) -> List[BenchmarkResult]:
+def run(sizes: Dict[str, List[int]], fixed_workers: Optional[int]=None) -> List[BenchmarkResult]:
     '''
     Execute every benchmark combination and return all results
     '''
@@ -145,4 +145,27 @@ def run(sizes: Dict[str, List[int]], use_distributed: bool, fixed_workers: Optio
 #Entry point
 
 def main() -> None:
-    pass
+    _header("STANDARD BENCHMARK")
+    results = run(SIZES)
+    results = compute_speedup(results)
+
+    _header('CREATING STANDARD CHARTS')
+    vis.generate_all(results)
+
+    #Crossover sweep
+    _header(f'CROSSOVER SWEEP ({SWEEP_WORKERS}) workers')
+    sweep_results = run(SWEEP_SIZES, fixed_workers=SWEEP_WORKERS)
+    sweep_results = compute_speedup(sweep_results)
+
+    _header('CROSSOVER ANALYSIS')
+    report_crossovers(sweep_results)
+
+    _header('CREATING CROSSOVER CHARTS')
+    #NEED THIS CODE
+
+    print('\n DONE, CHARTS SAVED')
+
+if __name__ == '__main__':
+    multiprocessing.freeze_support()
+    main()
+    
