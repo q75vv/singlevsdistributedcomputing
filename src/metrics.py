@@ -63,7 +63,7 @@ class ResourceMonitor:
         peak_mem: float = max(self._mem_samples, default=0.0)
         return avg_cpu, peak_mem
     
-    def run(self) -> None:
+    def _run(self) -> None:
         '''
         Main loop executed on the background thread. Appends one cpu % and one RSS mem sample per POLL_INTERVAL.
         '''
@@ -91,7 +91,7 @@ def run_benchmark(label: str, algorithm: str, size: int, num_workers: int, fn: C
 
     t0 = time.perf_counter()
     fn() #Excecute workload
-    elapsed = time.perf_counter - t0
+    elapsed = time.perf_counter() - t0
 
     #Stop monitoring and collect summary stats
     avg_cpu, peak_mem = monitor.stop()
