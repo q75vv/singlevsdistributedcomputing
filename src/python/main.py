@@ -66,3 +66,33 @@ def report_crossovers(results: List[BenchmarkResult]) -> None:
                 print(f'{algo:<8} {mode:<15} --> first beats single at size {crossover:<10,}')
             else:
                 print(f'{algo:<8} {mode:<15} --> never beat single process in tested range')
+
+def compute_speedup(results: List[BenchmarkResult]) -> List[BenchmarkResult]:
+    '''
+    Populate speedup field on each result by dividing the single process baseline time by each mode elapsed time
+    '''
+
+    #Make lookup of single process time keyed by (alg, size)
+    baselines = {}
+    for r in results:
+        if r.label == 'single':
+            baselines[(r.algorithm, r.size)] = r.elapsed_sec
+
+    #Divide baseline time by each result to get the speedup multiplier
+    for r in results:
+        key = (r.algorithm, r.size)
+        if key in baselines and baselines[key] > 0:
+            r.speedup = round(baselines[key] / r.elapsed_sec, 4)
+    return results
+
+def _header(msg: str) -> None:
+    '''Print a section divider with title'''
+    print('\n' + '='*60)
+    print(f'{msg}')
+    print('='*60)
+
+def _result_line(r: BenchmarkResult) -> None:
+    '''Print a single result on one line'''
+    print(f"  [{r.label:<22}]  {r.elapsed_sec:>7.3f}s mem={r.peak_memory_mb:>7.1f}MB cpu={r.avg_cpu_pct:>5.1f}%")
+
+
