@@ -84,3 +84,44 @@ def plot_exec_time(df: pd.DataFrame, algorithm: str, size: int) -> None:
     plt.savefig(path, dpi=150)
     plt.close()
     print(f'Saved: {path}')
+
+
+def plot_speedup(df: pd.DataFrame, algorithm: str, size: int) -> None:
+    '''
+    Line chart of speedup (relative to single process as a baseline) vs worker count
+    '''
+    #Exclude the single-process baselines because speedup lines are only useful for runs with more than one worker
+    subset = df[(df["algorithm"] == algorithm) & (df["size"] == size) & (df["num_workers"] > 1)]
+
+    if subset.empty:
+        return
+    
+    fig, ax = plt.subplots(figsize=(8, 5))
+
+    #Plot a seperate line for each parallel exec strat
+    for mode in ['multiprocess', 'distributed']:
+        grp = subset[subset["label"].str.startswith(mode)].sort_values("num_workers")
+
+    if not grp.empty:
+            ax.plot(grp["num_workers"], grp["speedup"], marker="o", label=mode.capitalize(), color=COLORS.get(mode), linewidth=2)
+
+    #Max workers
+    #Ideal linear speedup reference - if scaling was perfect, speedup would be exactly to worker count. Realife falls below this because of overhead
+    max_w = int(subset['num_workers'].max())
+    ax.plot(range(1, max_w + 1), range(1, max_w + 1), "k--", alpha=0.35, label="Ideal (linear)")
+
+    ax.set_title(f'Speedup vs Workers - {algorithm} (size={size})', fontweight='bold')
+    ax.set_xlabel('Number of Workers')
+    ax.set_ylabel('Speedup (x)')
+    ax.legend()
+    ax.grid(alpha=0.3)
+    plt.tight_layout()
+
+    if not os.path.exists(RESULTS_DIR):
+        os.makedirs(RESULTS_DIR)
+
+    path = os.path.join(RESULTS_DIR, f'speedup_{algorithm}_{size}.png')
+    plt.savefig(path, dpi=150)
+    plt.close()
+    print(f'Saved: {path}')
+    
