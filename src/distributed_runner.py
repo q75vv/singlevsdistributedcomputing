@@ -42,3 +42,36 @@ def bench_primes_multiprocessing(limit: int, num_workers: int) -> BenchmarkResul
     '''
     return run_benchmark(label=f'multiprocess-{num_workers=}', algorithm='primes', size=limit, num_workers=num_workers, 
                          fn=lambda: _run_primes_multiprocessing(limit, num_workers))
+
+def _run_matrix_multiplication_multiprocessing(size: int, num_workers: int) -> np.ndarray:
+    '''
+    Split matrix A into horizontal slices, compute each slices contribution to A @ B in seperate worker processes, 
+    and combine result
+    '''
+
+    rows_per_worker = math.ceil(size / num_workers)
+
+    #Build list of (row_indicies, size, seed) tuples for each worker
+    chunks = [
+        (
+            list(range(i * rows_per_worker, min((i + 1) * rows_per_worker, size))),
+            size,
+            42,   # fixed seed — must match matrix_multiply() so A and B are identical
+        )
+        for i in range(num_workers)
+        if i * rows_per_worker < size  # skip empty chunks if workers > rows
+    ]
+
+    with Pool(processes=num_workers) as pool:
+        partial_results = pool.map(matrix_multiplication_chunk, chunks)
+
+    #Stack partial row-band results vertically to make full result matrix
+    return np.vstack(partial_results)
+
+def bench_matrix_multiplication_distributed(size: int, num_workers: int) -> BenchmarkResult:
+    '''
+    Benchmark multiprocess matrix multiplication with given number of workers
+    '''
+
+    return run_benchmark(label=f'multiprocess-{num_workers}', algorithm='matrix multiplication', size=size, num_workers=num_workers, 
+                         fn=lambda: _run_matrix_multiplication_multiprocessing(size, num_workers))
