@@ -10,3 +10,10 @@ def bench_prime_single(limit: int) -> BenchmarkResult:
     Benchmark the prime sieve on a single process
     '''
     return run_benchmark(label='single', algorithm='primes', size=limit, num_workers=1, fn=lambda: prime_sieve(limit))
+
+def bench_matrix_multiplication_single(size: int) -> BenchmarkResult:
+    '''
+    Benchmark the matrix multiplicatino on a single process
+    '''
+
+    return run_benchmark(label='single', algorithm='matrix multiplication', size=size, num_workers=1, fn=lambda:matrix_multiplication(size))
