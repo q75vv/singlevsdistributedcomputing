@@ -11,6 +11,7 @@ import visualizations as vis
 #Worker counts to test for both multiprocess and distributed modes
 WORKER_COUNTS = [2,4,8,10]
 
+
 #Standard benchmark - handful of sizes for main comparison charts
 SIZES = {
     'primes': [500_000, 2_000_000],
@@ -29,6 +30,8 @@ SWEEP_SIZES = {
         384, 512, 768, 1024,
     ],
 }
+
+SWEEP_WORKERS = 4
 
 def find_crossover(results: List[BenchmarkResult], mode_prefix: str, algorithm: str) -> Optional[str]:
     '''
@@ -95,4 +98,51 @@ def _result_line(r: BenchmarkResult) -> None:
     '''Print a single result on one line'''
     print(f"  [{r.label:<22}]  {r.elapsed_sec:>7.3f}s mem={r.peak_memory_mb:>7.1f}MB cpu={r.avg_cpu_pct:>5.1f}%")
 
+def run(sizes: Dict[str, List[int]], use_distributed: bool, fixed_workers: Optional[int]=None) -> List[BenchmarkResult]:
+    '''
+    Execute every benchmark combination and return all results
+    '''
 
+    all_results = []
+
+    #Cap worker count at available cpu count
+    max_workers = min(max(WORKER_COUNTS), multiprocessing.cpu_count())
+    workers = [min(fixed_workers, max_workers)] if fixed_workers is not None else [w for w in WORKER_COUNTS if w <= max_workers] or [2]
+
+    #Primes
+    for limit in sizes['primes']:
+        _header(f'PRIMES limit={limit:,}')
+
+        #Baseline - must run first so speedup can be computed later
+        r = bench_prime_single(limit)
+        all_results.append(r); _result_line(r)
+
+        #Multiprocess
+        for w in workers:
+            r = bench_primes_multiprocessing(limit, w)
+            all_results.append(r); _result_line(r)
+        
+        #Distributed code HERE
+
+    #Matrix Mult
+    for size in sizes['matrix multiplication']:
+        _header(f'MATRIX MULTIPLICATION size={size}x{size}')
+
+        #Single process
+        r = bench_matrix_multiplication_single(size)
+        all_results.append(r); _result_line(r)
+
+        #Multiprocess
+        for w in workers:
+            r = bench_matrix_multiplication_distributed(size, w)
+            all_results.append(r); _result_line(r)
+
+
+        #DISTRIBUTED CODE HERE
+
+    return all_results
+
+#Entry point
+
+def main() -> None:
+    pass
