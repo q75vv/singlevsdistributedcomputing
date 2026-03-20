@@ -1,10 +1,15 @@
-import sys
 import os
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+
+import sys
 import multiprocessing
 from typing import Dict, List, Tuple, Optional
 
-from single_runner import bench_prime_single, bench_matrix_multiplication_single
+from single_runner import bench_prime_single, bench_prime_trial_division_single, bench_matrix_multiplication_single
 from distributed_runner import bench_primes_multiprocessing, bench_matrix_multiplication_distributed
+from distributed import bench_primes_distributed, bench_matmul_distributed, RAY_AVAILABLE
 from metrics import BenchmarkResult
 import visualizations as vis
 
@@ -14,8 +19,8 @@ WORKER_COUNTS = [2,4,8,10]
 
 #Standard benchmark - handful of sizes for main comparison charts
 SIZES = {
-    'primes': [500_000, 2_000_000],
-    'matrix multiplication': [512, 1024]
+    'primes': [500_000, 2_000_000, 3_000_000, 5_000_000],
+    'matrix multiplication': [512, 1024, 2048, 4096]
 }
 
 #Crossover sweeps - many sizes to find exact point where parallelism starts paying off
@@ -33,9 +38,9 @@ SWEEP_SIZES = {
 
 SWEEP_WORKERS = 4
 
-def find_crossover(results: List[BenchmarkResult], mode_prefix: str, algorithm: str) -> Optional[str]:
+def find_crossover(results: List[BenchmarkResult], mode_prefix: str, algorithm: str) -> Optional[int]:
     '''
-    Find smallest workload size at which a given paralell mode first achieves speedup > 1
+    Find smallest workload size at which a given parallel mode first achieves speedup > 1
     '''
 
     #Collect all results for this mode and algo that have a computed speedup
@@ -72,13 +77,15 @@ def report_crossovers(results: List[BenchmarkResult]) -> None:
 
 def compute_speedup(results: List[BenchmarkResult]) -> List[BenchmarkResult]:
     '''
-    Populate speedup field on each result by dividing the single process baseline time by each mode elapsed time
+    Populate speedup field on each result by dividing the single process baseline time by each mode elapsed time.
+
+    Uses 'single-td' as the baseline for 'primes-td' results, and 'single' for everything else.
     '''
 
     #Make lookup of single process time keyed by (alg, size)
     baselines = {}
     for r in results:
-        if r.label == 'single':
+        if r.label in ('single', 'single-td'):
             baselines[(r.algorithm, r.size)] = r.elapsed_sec
 
     #Divide baseline time by each result to get the speedup multiplier
@@ -113,16 +120,26 @@ def run(sizes: Dict[str, List[int]], fixed_workers: Optional[int]=None) -> List[
     for limit in sizes['primes']:
         _header(f'PRIMES limit={limit:,}')
 
-        #Baseline - must run first so speedup can be computed later
-        r = bench_prime_single(limit)
+        #Sieve baseline (fast, not directly comparable to parallel trial division)
+        #r = bench_prime_single(limit)
+        #all_results.append(r); _result_line(r)
+
+        #Trial division baseline (same algorithm as parallel workers - fair comparison)
+        r = bench_prime_trial_division_single(limit)
         all_results.append(r); _result_line(r)
 
-        #Multiprocess
+        #Multiprocess (trial division)
         for w in workers:
             r = bench_primes_multiprocessing(limit, w)
             all_results.append(r); _result_line(r)
-        
-        #Distributed code HERE
+
+        #Distributed (Ray, trial division)
+        if RAY_AVAILABLE:
+            for w in workers:
+                r = bench_primes_distributed(limit, w)
+                all_results.append(r); _result_line(r)
+        else:
+            print('  [distributed] skipped - Ray not installed')
 
     #Matrix Mult
     for size in sizes['matrix multiplication']:
@@ -137,8 +154,13 @@ def run(sizes: Dict[str, List[int]], fixed_workers: Optional[int]=None) -> List[
             r = bench_matrix_multiplication_distributed(size, w)
             all_results.append(r); _result_line(r)
 
-
-        #DISTRIBUTED CODE HERE
+        #Distributed (Ray)
+        if RAY_AVAILABLE:
+            for w in workers:
+                r = bench_matmul_distributed(size, w)
+                all_results.append(r); _result_line(r)
+        else:
+            print('  [distributed] skipped - Ray not installed')
 
     return all_results
 
@@ -163,9 +185,12 @@ def main() -> None:
     _header('CREATING CROSSOVER CHARTS')
     #NEED THIS CODE
 
+    if RAY_AVAILABLE:
+        import ray
+        ray.shutdown()
+
     print('\n DONE, CHARTS SAVED')
 
 if __name__ == '__main__':
     multiprocessing.freeze_support()
     main()
-    

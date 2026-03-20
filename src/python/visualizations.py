@@ -48,7 +48,6 @@ def result_to_df(results: List[BenchmarkResult]) -> pd.DataFrame:
             'peak_memory_mb': r.peak_memory_mb,
             'avg_cpu_pct': r.avg_cpu_pct,
             'speedup': r.speedup
-
         }
         for r in results
     ])
@@ -98,15 +97,15 @@ def plot_speedup(df: pd.DataFrame, algorithm: str, size: int) -> None:
     
     fig, ax = plt.subplots(figsize=(8, 5))
 
-    #Plot a seperate line for each parallel exec strat
+    #Plot a separate line for each parallel exec strategy
     for mode in ['multiprocess', 'distributed']:
         grp = subset[subset["label"].str.startswith(mode)].sort_values("num_workers")
 
-    if not grp.empty:
+        if not grp.empty:
             ax.plot(grp["num_workers"], grp["speedup"], marker="o", label=mode.capitalize(), color=COLORS.get(mode), linewidth=2)
 
-    #Max workers
-    #Ideal linear speedup reference - if scaling was perfect, speedup would be exactly to worker count. Realife falls below this because of overhead
+    #Ideal linear speedup reference - if scaling was perfect, speedup would be exactly equal to worker count.
+    #Real results fall below this due to overhead and communication costs.
     max_w = int(subset['num_workers'].max())
     ax.plot(range(1, max_w + 1), range(1, max_w + 1), "k--", alpha=0.35, label="Ideal (linear)")
 
@@ -138,9 +137,10 @@ def generate_all(results: List[BenchmarkResult]) -> None:
     if not os.path.exists(RESULTS_DIR):
         os.makedirs(RESULTS_DIR)
     csv_path = os.path.join(RESULTS_DIR, 'benchmark_results.csv')
+    df.to_csv(csv_path, index=False)
     print(f'Saved: {csv_path}\n')
 
-    #For each alg/size combo, create the 4 charts
+    #For each alg/size combo, create the charts
     for combo in df[["algorithm", "size"]].drop_duplicates().values.tolist():
         algo = combo[0]
         size = combo[1]
@@ -150,4 +150,3 @@ def generate_all(results: List[BenchmarkResult]) -> None:
         plot_speedup(df, algo, size)
         #plot_memory(df, algo, size)
         #plot_cpu(df, algo, size)
-    

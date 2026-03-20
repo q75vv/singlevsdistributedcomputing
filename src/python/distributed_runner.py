@@ -40,7 +40,7 @@ def bench_primes_multiprocessing(limit: int, num_workers: int) -> BenchmarkResul
     '''
     Benchmark multiprocess primes with given number of workers
     '''
-    return run_benchmark(label=f'multiprocess-{num_workers=}', algorithm='primes', size=limit, num_workers=num_workers, 
+    return run_benchmark(label=f'multiprocess-{num_workers=}', algorithm='primes-td', size=limit, num_workers=num_workers, 
                          fn=lambda: _run_primes_multiprocessing(limit, num_workers))
 
 def _run_matrix_multiplication_multiprocessing(size: int, num_workers: int) -> np.ndarray:

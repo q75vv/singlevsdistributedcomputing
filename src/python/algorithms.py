@@ -40,6 +40,24 @@ def prime_sieve(limit: int) -> List[int]:
 
     #Collect the indices that are still marked as prime
     return [i for i, v in enumerate(sieve) if v]
+
+def prime_trial_division(limit: int) -> List[int]:
+    """
+    Return all prime numbers up to limit (inclusive) using trial division.
+
+    This is the single-process equivalent of primes_chunk — it uses the same algorithm
+    as the parallel workers so that speedup comparisons are fair. Each number is tested
+    individually by checking divisibility against all integers up to its square root.
+
+    This is intentionally slower than the sieve. The point is to give multiprocess and
+    distributed runners a realistic baseline to beat.
+    """
+
+    results = []
+    for n in range(2, limit + 1):
+        if all(n % d != 0 for d in range(2, int(math.isqrt(n)) + 1)):
+            results.append(n)
+    return results
     
 def primes_chunk(args: Tuple[int, int]) -> List[int]:
     '''
@@ -100,5 +118,3 @@ def matrix_multiplication_chunk(args: Tuple[List[int], int, int]) -> np.ndarray:
     A_chunk = A_full[row_indicies]
 
     return A_chunk @ B
-    
-    
