@@ -8,8 +8,8 @@ import multiprocessing
 from typing import Dict, List, Tuple, Optional
 
 from single_runner import bench_prime_single, bench_prime_trial_division_single, bench_matrix_multiplication_single
-from distributed_runner import bench_primes_multiprocessing, bench_matrix_multiplication_distributed
-from distributed import bench_primes_distributed, bench_matmul_distributed, RAY_AVAILABLE
+from multithread_runner import bench_primes_multiprocessing, bench_matrix_multiplication_distributed
+from distributed_runner import bench_primes_distributed, bench_matmul_distributed, RAY_AVAILABLE
 from metrics import BenchmarkResult
 import visualizations as vis
 

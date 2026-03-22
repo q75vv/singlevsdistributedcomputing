@@ -124,7 +124,71 @@ def plot_speedup(df: pd.DataFrame, algorithm: str, size: int) -> None:
     plt.close()
     print(f'Saved: {path}')
 
-#MORE PLOTTING FUNCTIONS TO COME
+def plot_memory(df: pd.DataFrame, algorithm: str, size: int) -> None:
+    """
+    Bar chart showing peak RSS memory usage per execution mode.
+
+    Memory typically increases with worker count due to process overhead
+    and data duplication (each worker holds its own copy of inputs).
+
+    Args:
+        df:        Full results DataFrame.
+        algorithm: Which algorithm to plot.
+        size:      Which workload size to plot.
+    """
+    subset: pd.DataFrame = df[
+        (df["algorithm"] == algorithm) & (df["size"] == size)
+    ].sort_values("num_workers")
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    bars = ax.bar(
+        subset["label"], subset["peak_memory_mb"],
+        color=[_color(l) for l in subset["label"]], edgecolor="white",
+    )
+    ax.bar_label(bars, fmt="%.1f MB", padding=4, fontsize=9)
+    ax.set_title(f"Peak Memory — {algorithm} (size={size})", fontweight="bold")
+    ax.set_xlabel("Execution Mode"); ax.set_ylabel("Peak RSS Memory (MB)")
+    ax.grid(axis="y", alpha=0.3)
+    plt.xticks(rotation=20, ha="right"); plt.tight_layout()
+
+    path: str = os.path.join(RESULTS_DIR, f"memory_{algorithm}_{size}.png")
+    plt.savefig(path, dpi=150)
+    plt.close()
+    print(f"  Saved: {path}")
+
+
+def plot_cpu(df: pd.DataFrame, algorithm: str, size: int) -> None:
+    """
+    Bar chart showing average CPU utilisation (across all cores) per mode.
+
+    Single-process runs should show low overall CPU % (one core active out of N).
+    Multiprocess runs should approach 100% when fully utilised across all cores.
+
+    Args:
+        df:        Full results DataFrame.
+        algorithm: Which algorithm to plot.
+        size:      Which workload size to plot.
+    """
+    subset: pd.DataFrame = df[
+        (df["algorithm"] == algorithm) & (df["size"] == size)
+    ].sort_values("num_workers")
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    bars = ax.bar(
+        subset["label"], subset["avg_cpu_pct"],
+        color=[_color(l) for l in subset["label"]], edgecolor="white",
+    )
+    ax.bar_label(bars, fmt="%.1f%%", padding=4, fontsize=9)
+    ax.set_title(f"Avg CPU Utilisation — {algorithm} (size={size})", fontweight="bold")
+    ax.set_xlabel("Execution Mode"); ax.set_ylabel("Avg CPU % (all cores)")
+    ax.set_ylim(0, 105)  # cap at 105 so bar labels don't get clipped at 100%
+    ax.grid(axis="y", alpha=0.3)
+    plt.xticks(rotation=20, ha="right"); plt.tight_layout()
+
+    path: str = os.path.join(RESULTS_DIR, f"cpu_{algorithm}_{size}.png")
+    plt.savefig(path, dpi=150)
+    plt.close()
+    print(f"  Saved: {path}")
 
 def generate_all(results: List[BenchmarkResult]) -> None:
     '''
@@ -148,5 +212,5 @@ def generate_all(results: List[BenchmarkResult]) -> None:
         print(f"[{algo} | size={size}]")
         plot_exec_time(df, algo, size)
         plot_speedup(df, algo, size)
-        #plot_memory(df, algo, size)
-        #plot_cpu(df, algo, size)
+        plot_memory(df, algo, size)
+        plot_cpu(df, algo, size)
