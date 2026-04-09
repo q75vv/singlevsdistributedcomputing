@@ -1,0 +1,73 @@
+label,algorithm,size,num_workers,elapsed_sec,peak_memory_mb,avg_cpu_pct,speedup
+single-td,primes-td,500000,1,1.7038,117.1,17.86,1.0
+multiprocess-num_workers=2,primes-td,500000,2,2.465,117.8,22.26,0.6912
+multiprocess-num_workers=4,primes-td,500000,4,2.2557,118.41,39.43,0.7553
+multiprocess-num_workers=8,primes-td,500000,8,2.0862,119.08,56.04,0.8167
+multiprocess-num_workers=10,primes-td,500000,10,2.1613,119.11,65.0,0.7883
+distributed-2,primes-td,500000,2,5.4671,154.94,17.01,0.3116
+distributed-4,primes-td,500000,4,0.6724,157.05,24.63,2.5339
+distributed-8,primes-td,500000,8,0.4479,159.38,40.18,3.804
+distributed-10,primes-td,500000,10,0.3879,159.39,40.17,4.3924
+single-td,primes-td,2000000,1,11.4355,164.79,13.39,1.0
+multiprocess-num_workers=2,primes-td,2000000,2,8.5414,164.59,16.03,1.3388
+multiprocess-num_workers=4,primes-td,2000000,4,5.4658,165.51,24.49,2.0922
+multiprocess-num_workers=8,primes-td,2000000,8,3.9918,165.54,45.85,2.8647
+multiprocess-num_workers=10,primes-td,2000000,10,3.8239,166.68,60.79,2.9905
+distributed-2,primes-td,2000000,2,7.1982,165.73,16.06,1.5887
+distributed-4,primes-td,2000000,4,4.0382,166.45,24.51,2.8318
+distributed-8,primes-td,2000000,8,2.2897,166.45,40.29,4.9943
+distributed-10,primes-td,2000000,10,1.978,166.3,52.16,5.7813
+single-td,primes-td,3000000,1,20.2053,170.97,11.22,1.0
+multiprocess-num_workers=2,primes-td,3000000,2,14.0624,171.07,15.5,1.4368
+multiprocess-num_workers=4,primes-td,3000000,4,8.5129,169.45,29.53,2.3735
+multiprocess-num_workers=8,primes-td,3000000,8,5.74,168.58,45.19,3.5201
+multiprocess-num_workers=10,primes-td,3000000,10,5.428,169.94,57.16,3.7224
+distributed-2,primes-td,3000000,2,12.7348,168.73,13.65,1.5866
+distributed-4,primes-td,3000000,4,7.2262,170.0,24.91,2.7961
+distributed-8,primes-td,3000000,8,4.2274,171.68,48.5,4.7796
+distributed-10,primes-td,3000000,10,4.5085,170.01,59.42,4.4816
+single-td,primes-td,5000000,1,43.8362,175.33,13.3,1.0
+multiprocess-num_workers=2,primes-td,5000000,2,36.5365,175.22,17.01,1.1998
+multiprocess-num_workers=4,primes-td,5000000,4,21.3455,172.86,23.76,2.0537
+multiprocess-num_workers=8,primes-td,5000000,8,13.1059,172.39,45.34,3.3448
+multiprocess-num_workers=10,primes-td,5000000,10,11.568,177.49,56.75,3.7894
+distributed-2,primes-td,5000000,2,34.6877,170.71,17.04,1.2637
+distributed-4,primes-td,5000000,4,20.92,174.16,25.35,2.0954
+distributed-8,primes-td,5000000,8,11.8372,171.33,50.19,3.7033
+distributed-10,primes-td,5000000,10,9.8237,171.21,54.26,4.4623
+single,matrix multiplication,512,1,0.0062,171.05,0.0,1.0
+multiprocess-2,matrix multiplication,512,2,1.4298,171.86,19.53,0.0043
+multiprocess-4,matrix multiplication,512,4,1.5217,173.86,36.23,0.0041
+multiprocess-8,matrix multiplication,512,8,1.8188,174.8,62.99,0.0034
+multiprocess-10,matrix multiplication,512,10,1.8594,174.86,68.12,0.0033
+distributed-2,matrix multiplication,512,2,0.0433,174.87,0.0,0.1432
+distributed-4,matrix multiplication,512,4,0.0246,175.36,0.0,0.252
+distributed-8,matrix multiplication,512,8,0.0295,177.42,0.0,0.2102
+distributed-10,matrix multiplication,512,10,0.0278,179.43,51.5,0.223
+single,matrix multiplication,1024,1,0.0442,181.43,0.0,1.0
+multiprocess-2,matrix multiplication,1024,2,1.3997,182.47,19.02,0.0316
+multiprocess-4,matrix multiplication,1024,4,1.5734,182.47,40.84,0.0281
+multiprocess-8,matrix multiplication,1024,8,1.8771,182.47,67.38,0.0235
+multiprocess-10,matrix multiplication,1024,10,1.917,189.16,70.28,0.0231
+distributed-2,matrix multiplication,1024,2,0.036,180.26,0.0,1.2278
+distributed-4,matrix multiplication,1024,4,0.0344,180.35,0.0,1.2849
+distributed-8,matrix multiplication,1024,8,0.0343,188.35,0.0,1.2886
+distributed-10,matrix multiplication,1024,10,0.0396,196.45,0.0,1.1162
+single,matrix multiplication,2048,1,0.3847,301.51,14.07,1.0
+multiprocess-2,matrix multiplication,2048,2,1.5976,205.59,18.82,0.2408
+multiprocess-4,matrix multiplication,2048,4,1.6024,205.59,32.09,0.2401
+multiprocess-8,matrix multiplication,2048,8,1.8128,269.57,52.75,0.2122
+multiprocess-10,matrix multiplication,2048,10,2.0871,218.43,72.33,0.1843
+distributed-2,matrix multiplication,2048,2,0.3209,205.55,24.88,1.1988
+distributed-4,matrix multiplication,2048,4,0.2003,205.55,20.0,1.9206
+distributed-8,matrix multiplication,2048,8,0.1444,237.54,33.35,2.6641
+distributed-10,matrix multiplication,2048,10,0.1368,237.62,60.25,2.8121
+single,matrix multiplication,4096,1,2.5357,623.65,13.95,1.0
+multiprocess-2,matrix multiplication,4096,2,2.8853,346.86,20.11,0.8788
+multiprocess-4,matrix multiplication,4096,4,2.3647,399.79,36.05,1.0723
+multiprocess-8,matrix multiplication,4096,8,2.5334,457.79,58.51,1.0009
+multiprocess-10,matrix multiplication,4096,10,2.7442,416.53,76.18,0.924
+distributed-2,matrix multiplication,4096,2,1.9404,290.32,26.32,1.3068
+distributed-4,matrix multiplication,4096,4,1.2818,303.71,26.65,1.9782
+distributed-8,matrix multiplication,4096,8,0.7973,303.71,53.15,3.1804
+distributed-10,matrix multiplication,4096,10,0.7527,303.72,72.99,3.3688
